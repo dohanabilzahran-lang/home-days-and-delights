@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Home, Wallet, Sparkles, Brush, Baby, ChefHat, LogOut, MoreHorizontal, Briefcase } from "lucide-react";
+import { Home, Wallet, Sparkles, Brush, Baby, ChefHat, LogOut, MoreHorizontal, Briefcase, UtensilsCrossed, ShoppingBasket } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LangToggle, useLang, type Key } from "@/lib/i18n";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
   component: AppShell,
 });
 
-type To = "/dashboard" | "/budget" | "/skincare" | "/cleaning" | "/kids" | "/recipes" | "/work";
+type To = "/dashboard" | "/budget" | "/skincare" | "/cleaning" | "/kids" | "/recipes" | "/work" | "/meals" | "/shopping";
 type NavItem = { to: To; key: Key; icon: typeof Home; primary?: boolean };
 
 /**
@@ -27,6 +27,8 @@ const groups: { label?: Key; items: NavItem[] }[] = [
   { items: [{ to: "/dashboard", key: "today", icon: Home, primary: true }] },
   { label: "navHome", items: [
     { to: "/cleaning", key: "cleaning", icon: Brush, primary: true },
+    { to: "/meals", key: "meals", icon: UtensilsCrossed },
+    { to: "/shopping", key: "shopping", icon: ShoppingBasket },
     { to: "/recipes", key: "recipes", icon: ChefHat },
   ] },
   { label: "navFamily", items: [
