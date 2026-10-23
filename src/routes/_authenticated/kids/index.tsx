@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useLang } from "@/lib/i18n";
-import { todayISO, useRows, useTableMutations } from "@/lib/data";
+import { todayISO, useHistory, useRows, useTableMutations } from "@/lib/data";
+import { dailyStatus } from "@/lib/recurrence";
 import { PageHeader } from "@/components/PageHeader";
 import { FormDialog, Field } from "@/components/FormDialog";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ function Kids() {
   const childrenQuery = useRows("children");
   const children = childrenQuery.data ?? [];
   const tasks = useRows("kids_tasks").data ?? [];
+  const history = useHistory("kids").data;
   const { add } = useTableMutations("children");
   const today = todayISO();
   const [open, setOpen] = useState(false);
@@ -53,8 +55,10 @@ function Kids() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {children.map((c) => {
-            const mine = tasks.filter((k) => k.child_id === c.id);
-            const done = mine.filter((k) => k.last_done === today).length;
+            // Only items scheduled for today count; skipped and postponed ones drop out of the total.
+            const statuses = tasks.filter((k) => k.child_id === c.id).map((k) => dailyStatus(k, history, today));
+            const mine = statuses.filter((s) => s === "due" || s === "done");
+            const done = statuses.filter((s) => s === "done").length;
             return (
               <Link key={c.id} to="/kids/$childId" params={{ childId: c.id }}
                 className="card-soft flex flex-col gap-4 p-6 transition-transform hover:-translate-y-0.5">

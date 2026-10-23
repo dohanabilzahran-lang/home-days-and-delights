@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useLang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 
-export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: string; children?: ReactNode }) {
+export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: string | undefined; children?: ReactNode }) {
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>

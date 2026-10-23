@@ -13,12 +13,19 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedCleaningRouteImport } from './routes/_authenticated/cleaning'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMealsRouteImport } from './routes/_authenticated/meals'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedShoppingRouteImport } from './routes/_authenticated/shopping'
 import { Route as AuthenticatedSkincareRouteImport } from './routes/_authenticated/skincare'
+import { Route as AuthenticatedWorkRouteImport } from './routes/_authenticated/work'
+import { Route as ApiCronRouteImport } from './routes/api/cron'
 import { Route as AuthenticatedKidsIndexRouteImport } from './routes/_authenticated/kids/index'
 import { Route as AuthenticatedKidsChildIdRouteImport } from './routes/_authenticated/kids/$childId'
+import { Route as ApiGoogleCallbackRouteImport } from './routes/api/google/callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,6 +46,11 @@ const AuthenticatedBudgetRoute = AuthenticatedBudgetRouteImport.update({
   path: '/budget',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCleaningRoute = AuthenticatedCleaningRouteImport.update({
   id: '/cleaning',
   path: '/cleaning',
@@ -49,15 +61,40 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMealsRoute = AuthenticatedMealsRouteImport.update({
+  id: '/meals',
+  path: '/meals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
   id: '/recipes',
   path: '/recipes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedShoppingRoute = AuthenticatedShoppingRouteImport.update({
+  id: '/shopping',
+  path: '/shopping',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSkincareRoute = AuthenticatedSkincareRouteImport.update({
   id: '/skincare',
   path: '/skincare',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWorkRoute = AuthenticatedWorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiCronRoute = ApiCronRouteImport.update({
+  id: '/api/cron',
+  path: '/api/cron',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedKidsIndexRoute = AuthenticatedKidsIndexRouteImport.update({
   id: '/kids/',
@@ -70,27 +107,46 @@ const AuthenticatedKidsChildIdRoute =
     path: '/kids/$childId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiGoogleCallbackRoute = ApiGoogleCallbackRouteImport.update({
+  id: '/api/google/callback',
+  path: '/api/google/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/budget': typeof AuthenticatedBudgetRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/cleaning': typeof AuthenticatedCleaningRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/meals': typeof AuthenticatedMealsRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/shopping': typeof AuthenticatedShoppingRoute
   '/skincare': typeof AuthenticatedSkincareRoute
+  '/work': typeof AuthenticatedWorkRoute
+  '/api/cron': typeof ApiCronRoute
   '/kids/$childId': typeof AuthenticatedKidsChildIdRoute
+  '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/kids/': typeof AuthenticatedKidsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/budget': typeof AuthenticatedBudgetRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/cleaning': typeof AuthenticatedCleaningRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/meals': typeof AuthenticatedMealsRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/shopping': typeof AuthenticatedShoppingRoute
   '/skincare': typeof AuthenticatedSkincareRoute
+  '/work': typeof AuthenticatedWorkRoute
+  '/api/cron': typeof ApiCronRoute
   '/kids/$childId': typeof AuthenticatedKidsChildIdRoute
+  '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/kids': typeof AuthenticatedKidsIndexRoute
 }
 export interface FileRoutesById {
@@ -99,11 +155,18 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/budget': typeof AuthenticatedBudgetRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/cleaning': typeof AuthenticatedCleaningRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/meals': typeof AuthenticatedMealsRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/shopping': typeof AuthenticatedShoppingRoute
   '/_authenticated/skincare': typeof AuthenticatedSkincareRoute
+  '/_authenticated/work': typeof AuthenticatedWorkRoute
+  '/api/cron': typeof ApiCronRoute
   '/_authenticated/kids/$childId': typeof AuthenticatedKidsChildIdRoute
+  '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/_authenticated/kids/': typeof AuthenticatedKidsIndexRoute
 }
 export interface FileRouteTypes {
@@ -112,22 +175,36 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/budget'
+    | '/calendar'
     | '/cleaning'
     | '/dashboard'
+    | '/meals'
     | '/recipes'
+    | '/settings'
+    | '/shopping'
     | '/skincare'
+    | '/work'
+    | '/api/cron'
     | '/kids/$childId'
+    | '/api/google/callback'
     | '/kids/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/budget'
+    | '/calendar'
     | '/cleaning'
     | '/dashboard'
+    | '/meals'
     | '/recipes'
+    | '/settings'
+    | '/shopping'
     | '/skincare'
+    | '/work'
+    | '/api/cron'
     | '/kids/$childId'
+    | '/api/google/callback'
     | '/kids'
   id:
     | '__root__'
@@ -135,11 +212,18 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/budget'
+    | '/_authenticated/calendar'
     | '/_authenticated/cleaning'
     | '/_authenticated/dashboard'
+    | '/_authenticated/meals'
     | '/_authenticated/recipes'
+    | '/_authenticated/settings'
+    | '/_authenticated/shopping'
     | '/_authenticated/skincare'
+    | '/_authenticated/work'
+    | '/api/cron'
     | '/_authenticated/kids/$childId'
+    | '/api/google/callback'
     | '/_authenticated/kids/'
   fileRoutesById: FileRoutesById
 }
@@ -147,6 +231,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiCronRoute: typeof ApiCronRoute
+  ApiGoogleCallbackRoute: typeof ApiGoogleCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -179,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBudgetRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/cleaning': {
       id: '/_authenticated/cleaning'
       path: '/cleaning'
@@ -193,11 +286,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/meals': {
+      id: '/_authenticated/meals'
+      path: '/meals'
+      fullPath: '/meals'
+      preLoaderRoute: typeof AuthenticatedMealsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/recipes': {
       id: '/_authenticated/recipes'
       path: '/recipes'
       fullPath: '/recipes'
       preLoaderRoute: typeof AuthenticatedRecipesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shopping': {
+      id: '/_authenticated/shopping'
+      path: '/shopping'
+      fullPath: '/shopping'
+      preLoaderRoute: typeof AuthenticatedShoppingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/skincare': {
@@ -206,6 +320,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/skincare'
       preLoaderRoute: typeof AuthenticatedSkincareRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/work': {
+      id: '/_authenticated/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof AuthenticatedWorkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/cron': {
+      id: '/api/cron'
+      path: '/api/cron'
+      fullPath: '/api/cron'
+      preLoaderRoute: typeof ApiCronRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/kids/': {
       id: '/_authenticated/kids/'
@@ -221,25 +349,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedKidsChildIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/google/callback': {
+      id: '/api/google/callback'
+      path: '/api/google/callback'
+      fullPath: '/api/google/callback'
+      preLoaderRoute: typeof ApiGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBudgetRoute: typeof AuthenticatedBudgetRoute
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedCleaningRoute: typeof AuthenticatedCleaningRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMealsRoute: typeof AuthenticatedMealsRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedShoppingRoute: typeof AuthenticatedShoppingRoute
   AuthenticatedSkincareRoute: typeof AuthenticatedSkincareRoute
+  AuthenticatedWorkRoute: typeof AuthenticatedWorkRoute
   AuthenticatedKidsChildIdRoute: typeof AuthenticatedKidsChildIdRoute
   AuthenticatedKidsIndexRoute: typeof AuthenticatedKidsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBudgetRoute: AuthenticatedBudgetRoute,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedCleaningRoute: AuthenticatedCleaningRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMealsRoute: AuthenticatedMealsRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedShoppingRoute: AuthenticatedShoppingRoute,
   AuthenticatedSkincareRoute: AuthenticatedSkincareRoute,
+  AuthenticatedWorkRoute: AuthenticatedWorkRoute,
   AuthenticatedKidsChildIdRoute: AuthenticatedKidsChildIdRoute,
   AuthenticatedKidsIndexRoute: AuthenticatedKidsIndexRoute,
 }
@@ -251,6 +396,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiCronRoute: ApiCronRoute,
+  ApiGoogleCallbackRoute: ApiGoogleCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

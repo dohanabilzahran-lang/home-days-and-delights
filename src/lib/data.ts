@@ -5,33 +5,34 @@ import { useLang } from "@/lib/i18n";
 import type { Database } from "@/integrations/supabase/types";
 
 type Tables = Database["public"]["Tables"];
-export type TableName =
-  | "transactions"
-  | "skincare_steps"
-  | "cleaning_tasks"
-  | "kids_tasks"
-  | "recipes"
-  | "rooms"
-  | "children";
+/** Every table the browser may use. Server-only tables (Google tokens, app config) are excluded. */
+export type TableName = Exclude<keyof Tables, "google_connections" | "app_config">;
 export type Row<T extends TableName> = Tables[T]["Row"];
 export type Insert<T extends TableName> = Tables[T]["Insert"];
 export type Update<T extends TableName> = Tables[T]["Update"];
 
-const orderBy: Record<TableName, { col: string; asc: boolean }> = {
+const orderBy: Partial<Record<TableName, { col: string; asc: boolean }>> = {
   transactions: { col: "occurred_on", asc: false },
   skincare_steps: { col: "position", asc: true },
-  cleaning_tasks: { col: "created_at", asc: true },
   kids_tasks: { col: "at_time", asc: true },
   recipes: { col: "created_at", asc: false },
   rooms: { col: "position", asc: true },
   children: { col: "position", asc: true },
+  completions: { col: "on_date", asc: false },
+  shopping_categories: { col: "position", asc: true },
+  recipe_ingredients: { col: "position", asc: true },
+  meal_plan_entries: { col: "position", asc: true },
+  events: { col: "starts_on", asc: true },
+  notifications: { col: "created_at", asc: false },
+  debt_payments: { col: "paid_on", asc: false },
+  budget_plans: { col: "month", asc: true },
 };
 
 export function useRows<T extends TableName>(table: T) {
   return useQuery({
     queryKey: [table],
     queryFn: async () => {
-      const o = orderBy[table];
+      const o = orderBy[table] ?? { col: "created_at", asc: true };
       const { data, error } = await supabase.from(table).select("*").order(o.col, { ascending: o.asc });
       if (error) throw error;
       return data as unknown as Row<T>[];
@@ -75,29 +76,94 @@ export function useTableMutations<T extends TableName>(table: T) {
   return { add, update, remove };
 }
 
-/**
- * Value to save in `last_done` when a check circle is tapped.
- * Ticking saves today and remembers the date it replaced; un-ticking restores that
- * date instead of clearing it, so an accidental double tap never erases history.
- */
-export function nextLastDone(current: string | null, today: string, remembered: string | null | undefined) {
-  if (current !== today) return today;
-  return remembered ?? null;
+/** The signed-in user's profile (monthly income, time zone). Created on first save. */
+export function useProfile() {
+  const qc = useQueryClient();
+  const { t } = useLang();
+  const q = useRows("profiles");
+  const save = useMutation({
+    mutationFn: async (values: { monthly_income?: number; timezone?: string }) => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Not signed in");
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ user_id: auth.user.id, ...values, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["profiles"] }),
+    onError: (e) => toast.error(t("saveFailed"), { description: e instanceof Error ? e.message : undefined }),
+  });
+  const profile = q.data?.[0];
+  return { profile, income: Number(profile?.monthly_income ?? 0), isPending: q.isPending, save };
 }
 
-// Dates replaced by a tick in this session, keyed by row id.
-const replacedDates = new Map<string, string | null>();
+export type RoutineSource = "cleaning" | "kids" | "skincare";
+const routineTable = { cleaning: "cleaning_tasks", kids: "kids_tasks", skincare: "skincare_steps" } as const;
 
-type DoneTable = "cleaning_tasks" | "kids_tasks" | "skincare_steps";
-
-export function useToggleDone<T extends DoneTable>(table: T) {
-  const { update } = useTableMutations(table);
-  return (row: { id: string; last_done: string | null }, today = todayISO()) => {
-    const next = nextLastDone(row.last_done, today, replacedDates.get(row.id));
-    if (next === today) replacedDates.set(row.id, row.last_done);
-    else replacedDates.delete(row.id);
-    update.mutate({ id: row.id, values: { last_done: next } as Update<T> });
+/**
+ * Tick, un-tick, skip and postpone for repeating items. Each action is a row in `completions`
+ * (one per item per day, so repeats never duplicate), and `last_done` on the item is kept in step.
+ * Un-ticking deletes only that day's row, so earlier history is never lost.
+ */
+export function useRoutineActions(source: RoutineSource) {
+  const qc = useQueryClient();
+  const { t } = useLang();
+  const table = routineTable[source];
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["completions"] });
+    qc.invalidateQueries({ queryKey: [table] });
   };
+  const failed = (error: unknown) => {
+    const detail = error && typeof error === "object" && "message" in error ? String(error.message) : "";
+    toast.error(t("saveFailed"), { description: detail || undefined });
+  };
+  const run = useMutation({
+    mutationFn: async (fn: () => Promise<void>) => fn(),
+    onSuccess: refresh,
+    onError: failed,
+  });
+  const mark = async (id: string, onDate: string, status: "done" | "skipped") => {
+    const { error } = await supabase
+      .from("completions")
+      .upsert({ source_type: source, source_id: id, on_date: onDate, status }, { onConflict: "source_type,source_id,on_date" });
+    if (error) throw error;
+  };
+  const setItem = async (id: string, values: { last_done?: string | null; snoozed_until?: string | null }) => {
+    const { error } = await supabase.from(table).update(values as never).eq("id", id);
+    if (error) throw error;
+  };
+  return {
+    complete: (id: string, onDate = todayISO()) =>
+      run.mutate(async () => {
+        await mark(id, onDate, "done");
+        await setItem(id, { last_done: onDate, snoozed_until: null });
+      }),
+    uncomplete: (id: string, onDate = todayISO()) =>
+      run.mutate(async () => {
+        const del = await supabase.from("completions").delete().match({ source_type: source, source_id: id, on_date: onDate });
+        if (del.error) throw del.error;
+        const prev = await supabase
+          .from("completions")
+          .select("on_date")
+          .match({ source_type: source, source_id: id, status: "done" })
+          .order("on_date", { ascending: false })
+          .limit(1);
+        if (prev.error) throw prev.error;
+        await setItem(id, { last_done: prev.data[0]?.on_date ?? null });
+      }),
+    skip: (id: string, onDate = todayISO()) =>
+      run.mutate(async () => {
+        await mark(id, onDate, "skipped");
+        await setItem(id, { snoozed_until: null });
+      }),
+    postpone: (id: string, until: string) => run.mutate(() => setItem(id, { snoozed_until: until })),
+  };
+}
+
+/** Completion history for one kind of routine (newest first). */
+export function useHistory(source: RoutineSource) {
+  const q = useRows("completions");
+  return { ...q, data: (q.data ?? []).filter((c) => c.source_type === source) };
 }
 
 export const todayISO = () => {
