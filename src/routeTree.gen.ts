@@ -17,6 +17,7 @@ import { Route as AuthenticatedCleaningRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
 import { Route as AuthenticatedSkincareRouteImport } from './routes/_authenticated/skincare'
+import { Route as AuthenticatedWorkRouteImport } from './routes/_authenticated/work'
 import { Route as AuthenticatedKidsIndexRouteImport } from './routes/_authenticated/kids/index'
 import { Route as AuthenticatedKidsChildIdRouteImport } from './routes/_authenticated/kids/$childId'
 
@@ -59,6 +60,11 @@ const AuthenticatedSkincareRoute = AuthenticatedSkincareRouteImport.update({
   path: '/skincare',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWorkRoute = AuthenticatedWorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedKidsIndexRoute = AuthenticatedKidsIndexRouteImport.update({
   id: '/kids/',
   path: '/kids/',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/skincare': typeof AuthenticatedSkincareRoute
+  '/work': typeof AuthenticatedWorkRoute
   '/kids/$childId': typeof AuthenticatedKidsChildIdRoute
   '/kids/': typeof AuthenticatedKidsIndexRoute
 }
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/recipes': typeof AuthenticatedRecipesRoute
   '/skincare': typeof AuthenticatedSkincareRoute
+  '/work': typeof AuthenticatedWorkRoute
   '/kids/$childId': typeof AuthenticatedKidsChildIdRoute
   '/kids': typeof AuthenticatedKidsIndexRoute
 }
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
   '/_authenticated/skincare': typeof AuthenticatedSkincareRoute
+  '/_authenticated/work': typeof AuthenticatedWorkRoute
   '/_authenticated/kids/$childId': typeof AuthenticatedKidsChildIdRoute
   '/_authenticated/kids/': typeof AuthenticatedKidsIndexRoute
 }
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/recipes'
     | '/skincare'
+    | '/work'
     | '/kids/$childId'
     | '/kids/'
   fileRoutesByTo: FileRoutesByTo
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/recipes'
     | '/skincare'
+    | '/work'
     | '/kids/$childId'
     | '/kids'
   id:
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/recipes'
     | '/_authenticated/skincare'
+    | '/_authenticated/work'
     | '/_authenticated/kids/$childId'
     | '/_authenticated/kids/'
   fileRoutesById: FileRoutesById
@@ -207,6 +219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkincareRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/work': {
+      id: '/_authenticated/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof AuthenticatedWorkRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/kids/': {
       id: '/_authenticated/kids/'
       path: '/kids'
@@ -230,6 +249,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
   AuthenticatedSkincareRoute: typeof AuthenticatedSkincareRoute
+  AuthenticatedWorkRoute: typeof AuthenticatedWorkRoute
   AuthenticatedKidsChildIdRoute: typeof AuthenticatedKidsChildIdRoute
   AuthenticatedKidsIndexRoute: typeof AuthenticatedKidsIndexRoute
 }
@@ -240,6 +260,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
   AuthenticatedSkincareRoute: AuthenticatedSkincareRoute,
+  AuthenticatedWorkRoute: AuthenticatedWorkRoute,
   AuthenticatedKidsChildIdRoute: AuthenticatedKidsChildIdRoute,
   AuthenticatedKidsIndexRoute: AuthenticatedKidsIndexRoute,
 }
