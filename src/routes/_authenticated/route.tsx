@@ -1,10 +1,12 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Home, Wallet, Sparkles, Brush, Baby, ChefHat, LogOut, MoreHorizontal, Briefcase, UtensilsCrossed, ShoppingBasket } from "lucide-react";
+import { Home, Wallet, Sparkles, Brush, Baby, ChefHat, LogOut, MoreHorizontal, Briefcase, UtensilsCrossed, ShoppingBasket, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LangToggle, useLang, type Key } from "@/lib/i18n";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { NotificationBell } from "@/components/NotificationBell";
+import { useReminderSweep } from "@/lib/useCalendar";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/_authenticated")({
   component: AppShell,
 });
 
-type To = "/dashboard" | "/budget" | "/skincare" | "/cleaning" | "/kids" | "/recipes" | "/work" | "/meals" | "/shopping";
+type To = "/dashboard" | "/budget" | "/skincare" | "/cleaning" | "/kids" | "/recipes" | "/work" | "/meals" | "/shopping" | "/calendar";
 type NavItem = { to: To; key: Key; icon: typeof Home; primary?: boolean };
 
 /**
@@ -24,7 +26,10 @@ type NavItem = { to: To; key: Key; icon: typeof Home; primary?: boolean };
  * only items marked `primary` get a phone tab, the rest live under "More".
  */
 const groups: { label?: Key; items: NavItem[] }[] = [
-  { items: [{ to: "/dashboard", key: "today", icon: Home, primary: true }] },
+  { items: [
+    { to: "/dashboard", key: "today", icon: Home, primary: true },
+    { to: "/calendar", key: "calendar", icon: CalendarDays, primary: true },
+  ] },
   { label: "navHome", items: [
     { to: "/cleaning", key: "cleaning", icon: Brush, primary: true },
     { to: "/meals", key: "meals", icon: UtensilsCrossed },
@@ -35,7 +40,7 @@ const groups: { label?: Key; items: NavItem[] }[] = [
     { to: "/kids", key: "kids", icon: Baby, primary: true },
     { to: "/skincare", key: "skincare", icon: Sparkles },
   ] },
-  { label: "navMoney", items: [{ to: "/budget", key: "budget", icon: Wallet, primary: true }] },
+  { label: "navMoney", items: [{ to: "/budget", key: "budget", icon: Wallet }] },
   { label: "navWork", items: [{ to: "/work", key: "work", icon: Briefcase }] },
 ];
 
@@ -47,6 +52,7 @@ function AppShell() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [moreOpen, setMoreOpen] = useState(false);
+  useReminderSweep();
 
   async function signOut() {
     await qc.cancelQueries();
@@ -58,7 +64,10 @@ function AppShell() {
   return (
     <div className="min-h-screen md:flex">
       <aside className="hidden w-60 shrink-0 flex-col bg-sidebar p-5 text-sidebar-foreground md:flex">
-        <div className="mb-8 font-display text-2xl text-sidebar-accent-foreground">{t("appName")}</div>
+        <div className="mb-8 flex items-center justify-between">
+          <span className="font-display text-2xl text-sidebar-accent-foreground">{t("appName")}</span>
+          <NotificationBell className="hover:bg-sidebar-accent" />
+        </div>
         <nav className="flex flex-1 flex-col gap-5">
           {groups.map((g, gi) => (
             <div key={gi} className="flex flex-col gap-1">
@@ -86,7 +95,10 @@ function AppShell() {
 
       <header className="flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
         <span className="font-display text-xl">{t("appName")}</span>
-        <LangToggle />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <LangToggle />
+        </div>
       </header>
 
       <main className="flex-1 px-4 pb-28 pt-6 md:px-10 md:pb-10 md:pt-10">

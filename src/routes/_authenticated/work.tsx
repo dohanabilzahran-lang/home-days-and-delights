@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Pencil, Plus, StickyNote, Trash2 } from "lucide-react";
 import { useLang, type Key } from "@/lib/i18n";
 import { todayISO, useRows, useTableMutations, type Row } from "@/lib/data";
@@ -31,6 +34,29 @@ function Work() {
   const projects = (useRows("work_projects").data ?? []).filter((p) => !p.archived);
   const { add, update, remove } = useTableMutations("work_items");
   const projectMut = useTableMutations("work_projects");
+  const events = useRows("events").data ?? [];
+  const qc = useQueryClient();
+
+  /**
+   * "Also add to Google Calendar" on a dated task keeps one linked event (events.work_item_id is unique).
+   * Turning it off removes the event; one already in Google is hidden until sync removes it there.
+   */
+  async function syncLinkedEvent(item: Item, v: { title: string; due_date: string | null; due_time: string | null }, wanted: boolean) {
+    const linked = events.find((e) => e.work_item_id === item.id && !e.deleted_at);
+    let error = null;
+    if (wanted && v.due_date) {
+      const values = { work_item_id: item.id, title: v.title, starts_on: v.due_date, start_time: v.due_time, sync_to_google: true, sync_state: "pending", updated_at: new Date().toISOString() };
+      ({ error } = linked
+        ? await supabase.from("events").update(values).eq("id", linked.id)
+        : await supabase.from("events").insert(values));
+    } else if (linked) {
+      ({ error } = linked.google_event_id
+        ? await supabase.from("events").update({ deleted_at: new Date().toISOString(), sync_state: "delete_requested_by_nest" }).eq("id", linked.id)
+        : await supabase.from("events").delete().eq("id", linked.id));
+    }
+    if (error) toast.error(t("saveFailed"), { description: error.message });
+    qc.invalidateQueries({ queryKey: ["events"] });
+  }
   const today = todayISO();
   const [filter, setFilter] = useState<string>("all");
   const [title, setTitle] = useState("");
@@ -144,8 +170,13 @@ function Work() {
       </ListState>
 
       {editing && (
-        <EditItem key={editing.id} item={editing} projects={projects} onClose={() => setEditing(null)}
-          onSave={(values) => update.mutate({ id: editing.id, values: { ...values, updated_at: new Date().toISOString() } }, { onSuccess: () => setEditing(null) })} />
+        <EditItem key={editing.id} item={editing} projects={projects}
+          inGoogle={events.some((e) => e.work_item_id === editing.id && !e.deleted_at)}
+          onClose={() => setEditing(null)}
+          onSave={({ sync_google, ...values }) => update.mutate(
+            { id: editing.id, values: { ...values, updated_at: new Date().toISOString() } },
+            { onSuccess: () => { syncLinkedEvent(editing, values, sync_google); setEditing(null); } },
+          )} />
       )}
 
       <FormDialog open={newProject !== null} onOpenChange={(o) => !o && setNewProject(null)} title={t("newProject")}
@@ -161,13 +192,14 @@ function Work() {
   );
 }
 
-function EditItem({ item, projects, onClose, onSave }: {
+function EditItem({ item, projects, inGoogle, onClose, onSave }: {
   item: Item;
   projects: Row<"work_projects">[];
+  inGoogle: boolean;
   onClose: () => void;
   onSave: (v: {
     title: string; body: string; kind: Kind; status: Status; priority: Priority; project_id: string | null;
-    due_date: string | null; due_time: string | null; remind: boolean; show_in_calendar: boolean;
+    due_date: string | null; due_time: string | null; remind: boolean; show_in_calendar: boolean; sync_google: boolean;
   }) => void;
 }) {
   const { t } = useLang();
@@ -181,6 +213,7 @@ function EditItem({ item, projects, onClose, onSave }: {
   const [dueTime, setDueTime] = useState(item.due_time?.slice(0, 5) ?? "");
   const [remind, setRemind] = useState(item.remind);
   const [inCalendar, setInCalendar] = useState(item.show_in_calendar);
+  const [google, setGoogle] = useState(inGoogle);
   const isNote = kind === "note";
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title={t("edit")}
@@ -188,6 +221,7 @@ function EditItem({ item, projects, onClose, onSave }: {
         title: title.trim(), body, kind, status, priority, project_id: projectId || null,
         due_date: isNote ? null : dueDate || null, due_time: isNote || !dueDate ? null : dueTime || null,
         remind: !isNote && !!dueDate && remind, show_in_calendar: !isNote && !!dueDate && inCalendar,
+        sync_google: !isNote && !!dueDate && google,
       })}>
       <Field id="work-title" label={t("title")}>
         <Input id="work-title" value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -234,6 +268,10 @@ function EditItem({ item, projects, onClose, onSave }: {
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" className="size-4" disabled={!dueDate} checked={inCalendar} onChange={(e) => setInCalendar(e.target.checked)} />
             {t("showInCalendar")}
+          </label>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-0.5 size-4" disabled={!dueDate} checked={google} onChange={(e) => setGoogle(e.target.checked)} />
+            <span>{t("syncGoogle")}<span className="block text-xs text-muted-foreground">{t("syncGoogleHint")}</span></span>
           </label>
         </>
       )}
