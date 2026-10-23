@@ -5,14 +5,7 @@ import { useLang } from "@/lib/i18n";
 import type { Database } from "@/integrations/supabase/types";
 
 type Tables = Database["public"]["Tables"];
-export type TableName =
-  | "transactions"
-  | "skincare_steps"
-  | "cleaning_tasks"
-  | "kids_tasks"
-  | "recipes"
-  | "rooms"
-  | "children";
+export type TableName = "transactions" | "skincare_steps" | "cleaning_tasks" | "kids_tasks" | "recipes";
 export type Row<T extends TableName> = Tables[T]["Row"];
 export type Insert<T extends TableName> = Tables[T]["Insert"];
 export type Update<T extends TableName> = Tables[T]["Update"];
@@ -23,8 +16,6 @@ const orderBy: Record<TableName, { col: string; asc: boolean }> = {
   cleaning_tasks: { col: "created_at", asc: true },
   kids_tasks: { col: "at_time", asc: true },
   recipes: { col: "created_at", asc: false },
-  rooms: { col: "position", asc: true },
-  children: { col: "position", asc: true },
 };
 
 export function useRows<T extends TableName>(table: T) {
@@ -112,27 +103,6 @@ export function daysUntilDue(lastDone: string | null, everyDays: number, today =
   return Math.round(everyDays - diff);
 }
 
-/** Amounts are Egyptian pounds: "EGP 1,250" in English, "١٬٢٥٠ ج.م.‏" in Arabic. */
 export function formatMoney(n: number, lang: "en" | "ar") {
-  return new Intl.NumberFormat(lang === "ar" ? "ar-EG" : "en-US", {
-    style: "currency",
-    currency: "EGP",
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
-  }).format(n);
-}
-
-/** Stable budget category keys. Stored in `transactions.category`; translated on display. */
-export const CATEGORY_KEYS = ["groceries", "bills", "kids", "beauty", "home", "transport", "salary", "other"] as const;
-export type CategoryKey = (typeof CATEGORY_KEYS)[number];
-
-/** Older rows may hold a translated label instead of a key; map both languages back to the key. */
-const LEGACY_LABELS: Record<string, CategoryKey> = {
-  Groceries: "groceries", Bills: "bills", Kids: "kids", Beauty: "beauty", Home: "home", Transport: "transport", Salary: "salary", Other: "other",
-  "بقالة": "groceries", "فواتير": "bills", "أطفال": "kids", "تجميل": "beauty", "منزل": "home", "مواصلات": "transport", "راتب": "salary", "أخرى": "other",
-};
-
-export function categoryKey(stored: string): CategoryKey | null {
-  if ((CATEGORY_KEYS as readonly string[]).includes(stored)) return stored as CategoryKey;
-  return LEGACY_LABELS[stored] ?? null;
+  return new Intl.NumberFormat(lang === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 2 }).format(n);
 }

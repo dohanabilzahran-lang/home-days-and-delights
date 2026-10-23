@@ -14,30 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      children: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          position: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          position?: number
-          user_id?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          position?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
       cleaning_tasks: {
         Row: {
           created_at: string
@@ -45,7 +21,6 @@ export type Database = {
           id: string
           last_done: string | null
           room: string | null
-          room_id: string | null
           title: string
           user_id: string
         }
@@ -55,7 +30,6 @@ export type Database = {
           id?: string
           last_done?: string | null
           room?: string | null
-          room_id?: string | null
           title: string
           user_id?: string
         }
@@ -65,25 +39,15 @@ export type Database = {
           id?: string
           last_done?: string | null
           room?: string | null
-          room_id?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "cleaning_tasks_room_id_fkey"
-            columns: ["room_id"]
-            isOneToOne: false
-            referencedRelation: "rooms"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       kids_tasks: {
         Row: {
           at_time: string | null
-          child_id: string | null
-          child_name: string | null
+          child_name: string
           created_at: string
           id: string
           last_done: string | null
@@ -92,8 +56,7 @@ export type Database = {
         }
         Insert: {
           at_time?: string | null
-          child_id?: string | null
-          child_name?: string | null
+          child_name: string
           created_at?: string
           id?: string
           last_done?: string | null
@@ -102,23 +65,14 @@ export type Database = {
         }
         Update: {
           at_time?: string | null
-          child_id?: string | null
-          child_name?: string | null
+          child_name?: string
           created_at?: string
           id?: string
           last_done?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "kids_tasks_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       recipes: {
         Row: {
@@ -146,30 +100,6 @@ export type Database = {
           minutes?: number | null
           steps?: string
           title?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      rooms: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          position: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          position?: number
-          user_id?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          position?: number
           user_id?: string
         }
         Relationships: []

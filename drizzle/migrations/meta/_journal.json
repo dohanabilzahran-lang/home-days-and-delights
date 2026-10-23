@@ -8,13 +8,6 @@
       "when": 1792742714767,
       "tag": "0000_migration",
       "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1792757360468,
-      "tag": "0001_rooms_children",
-      "breakpoints": true
     }
   ]
 }
