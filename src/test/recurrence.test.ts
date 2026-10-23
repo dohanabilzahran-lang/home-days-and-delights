@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, dailyStatus, isoWeekday, isScheduledOn, lastDone, lastHandled, nextDueInterval } from "@/lib/recurrence";
+import { addDays, dailyStatus, handledDate, isoWeekday, isScheduledOn, lastDone, lastHandled, nextDueInterval } from "@/lib/recurrence";
 
 const today = "2026-10-23"; // a Friday
 
@@ -23,6 +23,9 @@ describe("history", () => {
   it("last handled includes skips", () => expect(lastHandled(h, "a")).toBe("2026-10-17"));
   it("last done ignores skips", () => expect(lastDone(h, "a")).toBe("2026-10-10"));
   it("other tasks don't leak in", () => expect(lastDone(h, "c")).toBeNull());
+  it("uses the old last_done date when it is newer than the history", () => expect(handledDate(h, "a", "2026-10-20")).toBe("2026-10-20"));
+  it("prefers history when it is newer", () => expect(handledDate(h, "a", "2026-10-01")).toBe("2026-10-17"));
+  it("old date alone is enough", () => expect(handledDate([], "x", "2026-10-12")).toBe("2026-10-12"));
 });
 
 describe("weekday schedules", () => {

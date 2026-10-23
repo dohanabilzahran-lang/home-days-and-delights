@@ -24,7 +24,7 @@ type View = "month" | "week" | "day" | "agenda";
 type Event = Row<"events">;
 
 const KIND_DOT: Record<CalKind, string> = {
-  event: "bg-primary", work: "bg-chart-2", cleaning: "bg-chart-3", kids: "bg-chart-4", skincare: "bg-chart-5", meal: "bg-sand",
+  event: "bg-primary", work: "bg-destructive/70", cleaning: "bg-chart-3", kids: "bg-chart-4", skincare: "bg-chart-5", meal: "bg-sand",
 };
 const KIND_LINK: Record<Exclude<CalKind, "event">, "/work" | "/cleaning" | "/kids" | "/skincare" | "/meals"> = {
   work: "/work", cleaning: "/cleaning", kids: "/kids", skincare: "/skincare", meal: "/meals",
@@ -67,14 +67,16 @@ function CalendarPage() {
       <>
         <span className={`size-2 shrink-0 rounded-full ${KIND_DOT[i.kind]}`} aria-hidden />
         {i.time && !compact && <span className="tabular-nums text-muted-foreground">{i.time}</span>}
-        <span className={`truncate ${i.done ? "text-muted-foreground line-through" : ""}`}>{i.title}</span>
+        <span className={`truncate ${compact ? "hidden md:inline" : ""} ${i.done ? "text-muted-foreground line-through" : ""}`}>{i.title}</span>
         {i.google && !compact && <RefreshCw className="size-3 shrink-0 text-muted-foreground" aria-label="Google" />}
       </>
     );
-    const cls = `flex w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 text-start hover:bg-secondary ${compact ? "text-[11px]" : "text-sm"}`;
+    const cls = compact
+      ? "inline-flex min-w-0 items-center gap-1.5 rounded-md p-0.5 text-start text-[11px] hover:bg-secondary md:flex md:w-full md:px-1.5"
+      : "flex w-full min-w-0 items-center gap-1.5 rounded-md px-1.5 py-0.5 text-start text-sm hover:bg-secondary";
     return i.kind === "event"
-      ? <button type="button" className={cls} onClick={() => openItem(i)}>{body}</button>
-      : <Link to={KIND_LINK[i.kind]} className={cls} title={t(`kind_${i.kind}` as Key)}>{body}</Link>;
+      ? <button type="button" className={cls} title={i.title} aria-label={i.title} onClick={() => openItem(i)}>{body}</button>
+      : <Link to={KIND_LINK[i.kind]} className={cls} title={i.title} aria-label={i.title}>{body}</Link>;
   };
 
   return (

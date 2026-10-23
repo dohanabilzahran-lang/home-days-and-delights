@@ -1,4 +1,4 @@
-import { addDays, diffDays, isScheduledOn, lastHandled, nextDueInterval, type Completion } from "@/lib/recurrence";
+import { addDays, diffDays, handledDate, isScheduledOn, nextDueInterval, type Completion } from "@/lib/recurrence";
 
 export type CalKind = "event" | "work" | "cleaning" | "kids" | "skincare" | "meal";
 export type CalItem = {
@@ -16,7 +16,7 @@ export type CalItem = {
 type Sources = {
   events: { id: string; title: string; starts_on: string; start_time: string | null; deleted_at: string | null; sync_to_google: boolean; work_item_id: string | null }[];
   work: { id: string; title: string; due_date: string | null; due_time: string | null; show_in_calendar: boolean; status: string }[];
-  cleaning: { id: string; title: string; every_days: number; snoozed_until: string | null; show_in_calendar: boolean }[];
+  cleaning: { id: string; title: string; every_days: number; last_done?: string | null; snoozed_until: string | null; show_in_calendar: boolean }[];
   kids: { id: string; title: string; at_time: string | null; days_of_week: number[] | null; snoozed_until: string | null; show_in_calendar: boolean }[];
   skincare: { id: string; title: string; remind_time: string | null; period: string; days_of_week: number[] | null; snoozed_until: string | null; show_in_calendar: boolean }[];
   meals?: { id: string; on_date: string; slot: string; label: string }[];
@@ -48,7 +48,7 @@ export function calendarItems(src: Sources, from: string, to: string, today: str
   for (const c of src.cleaning) {
     if (!c.show_in_calendar) continue;
     const history = src.history.filter((h) => h.source_type === "cleaning");
-    let d = nextDueInterval(lastHandled(history, c.id), c.every_days, c.snoozed_until, today);
+    let d = nextDueInterval(handledDate(history, c.id, c.last_done ?? null), c.every_days, c.snoozed_until, today);
     if (d < today && diffDays(d, today) > 0) d = today; // overdue shows today, not in the past
     // Done today counts as today's occurrence.
     if (doneOn("cleaning", c.id, today)) out.push({ key: `cleaning:${c.id}:${today}`, kind: "cleaning", sourceId: c.id, date: today, time: null, title: c.title, done: true });
@@ -61,7 +61,9 @@ export function calendarItems(src: Sources, from: string, to: string, today: str
   const daily = (type: "kids" | "skincare", id: string, title: string, time: string | null, days: number[] | null, snoozed: string | null) => {
     for (let d = from; d <= to; d = addDays(d, 1)) {
       if (!isScheduledOn(days, d) || (snoozed && snoozed > d)) continue;
-      out.push({ key: `${type}:${id}:${d}`, kind: type, sourceId: id, date: d, time, title, done: doneOn(type, id, d) });
+      const done = doneOn(type, id, d);
+      if (d < today && !done) continue; // the past shows what was done, not every missed day
+      out.push({ key: `${type}:${id}:${d}`, kind: type, sourceId: id, date: d, time, title, done });
     }
   };
   for (const k of src.kids) if (k.show_in_calendar) daily("kids", k.id, k.title, k.at_time?.slice(0, 5) ?? null, k.days_of_week, k.snoozed_until);

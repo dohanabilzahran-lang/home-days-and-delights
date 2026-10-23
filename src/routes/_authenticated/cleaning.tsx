@@ -4,7 +4,7 @@ import { Settings2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useLang } from "@/lib/i18n";
 import { todayISO, useHistory, useRoutineActions, useRows, useTableMutations, type Row } from "@/lib/data";
-import { addDays, diffDays, lastHandled, nextDueInterval } from "@/lib/recurrence";
+import { addDays, diffDays, handledDate, nextDueInterval } from "@/lib/recurrence";
 import { PageHeader, ListState } from "@/components/PageHeader";
 import { CheckRow, Pill } from "@/components/CheckRow";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
@@ -49,7 +49,7 @@ function Cleaning() {
   }
 
   const info = (r: Task) => {
-    const next = nextDueInterval(lastHandled(history, r.id), r.every_days, r.snoozed_until, today);
+    const next = nextDueInterval(handledDate(history, r.id, r.last_done), r.every_days, r.snoozed_until, today);
     const doneToday = history.some((c) => c.source_id === r.id && c.on_date === today && c.status === "done");
     return { next, days: diffDays(today, next), doneToday, upToDate: doneToday || diffDays(today, next) > 0 };
   };
@@ -113,7 +113,7 @@ function Cleaning() {
                     const marks = ticked[r.id] ?? [];
                     return (
                       <CheckRow key={r.id} title={r.title} done={doneToday}
-                        meta={`${t("everyDays").replace(/\s*\(.*\)/, "")} ${r.every_days}`}
+                        meta={t("everyNDays", { n: r.every_days })}
                         right={pill}
                         onToggle={() => (doneToday ? act.uncomplete(r.id, today) : complete(r))}
                         actions={doneToday ? [] : [

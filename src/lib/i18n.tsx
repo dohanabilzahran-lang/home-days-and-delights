@@ -38,6 +38,7 @@ const dict = {
   product: { en: "Product", ar: "المنتج" },
   room: { en: "Room", ar: "الغرفة" },
   everyDays: { en: "Every (days)", ar: "كل (أيام)" },
+  everyNDays: { en: "Every {n} days", ar: "كل {n} أيام" },
   due: { en: "Due", ar: "مستحق" },
   dueIn: { en: "Due in {n} d", ar: "بعد {n} يوم" },
   overdue: { en: "Overdue", ar: "متأخر" },
@@ -284,7 +285,7 @@ const dict = {
   // Dashboard
   agendaToday: { en: "Today's plan", ar: "خطة اليوم" },
   workDue: { en: "{n} due or overdue", ar: "{n} مستحقة أو متأخرة" },
-  shoppingNeeded: { en: "{n} items to buy", ar: "{n} أصناف للشراء" },
+  shoppingNeeded: { en: "To buy: {n}", ar: "للشراء: {n}" },
   mealsToday: { en: "Meals today", ar: "وجبات اليوم" },
   leftOfPlan: { en: "left this month", ar: "متبقي هذا الشهر" },
   // Settings

@@ -3,7 +3,7 @@ import { Wallet, Sparkles, Brush, Baby, Briefcase, ShoppingBasket, UtensilsCross
 import type { ReactNode } from "react";
 import { useLang, type Key } from "@/lib/i18n";
 import { categoryKey, formatMoney, todayISO, useProfile, useRows } from "@/lib/data";
-import { dailyStatus, diffDays, lastHandled, nextDueInterval } from "@/lib/recurrence";
+import { dailyStatus, diffDays, handledDate, nextDueInterval } from "@/lib/recurrence";
 import { monthOf, monthTotals } from "@/lib/budget";
 import { SLOTS } from "@/lib/meals";
 import { Progress } from "@/components/ui/progress";
@@ -31,7 +31,7 @@ function Dashboard() {
 
   // Cleaning: due or overdue now (not done today).
   const cleanInfo = cleaning.map((c) => {
-    const days = diffDays(today, nextDueInterval(lastHandled(hist("cleaning"), c.id), c.every_days, c.snoozed_until, today));
+    const days = diffDays(today, nextDueInterval(handledDate(hist("cleaning"), c.id, c.last_done), c.every_days, c.snoozed_until, today));
     const doneToday = hist("cleaning").some((h) => h.source_id === c.id && h.on_date === today && h.status === "done");
     return { c, due: !doneToday && days <= 0 };
   });

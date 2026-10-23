@@ -35,7 +35,9 @@ function Meals() {
   const dayName = useDayName();
   const today = todayISO();
   const [start, setStart] = useState(weekStart(today));
-  const [view, setView] = useState<"week" | "day">("week");
+  // Phones open on the day view; the 7-column grid needs a wider screen.
+  const [view, setView] = useState<"week" | "day">(() =>
+    typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)").matches ? "day" : "week");
   const [day, setDay] = useState(today);
   const entries = useRows("meal_plan_entries").data ?? [];
   const recipes = useRows("recipes").data ?? [];
@@ -95,7 +97,7 @@ function Meals() {
           {(["week", "day"] as const).map((v) => (
             <button key={v} type="button" role="radio" aria-checked={view === v} onClick={() => setView(v)}
               className={`rounded-full px-4 py-1.5 text-sm ${view === v ? "bg-card shadow-sm" : "text-muted-foreground"}`}>
-              {v === "week" ? t("thisWeek").split(" ").pop() : t("day")}
+              {v === "week" ? t("view_week") : t("view_day")}
             </button>
           ))}
         </div>

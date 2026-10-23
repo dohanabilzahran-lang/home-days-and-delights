@@ -31,6 +31,15 @@ export function lastHandled(history: Completion[], sourceId: string) {
   return latest;
 }
 
+/**
+ * Latest done-or-skipped date, also counting the task's own `last_done` column, which holds
+ * completions made before the history table existed.
+ */
+export function handledDate(history: Completion[], sourceId: string, lastDoneColumn: string | null) {
+  const h = lastHandled(history, sourceId);
+  return !lastDoneColumn ? h : !h || lastDoneColumn > h ? lastDoneColumn : h;
+}
+
 /** Latest date the task was actually done (skips excluded). */
 export function lastDone(history: Completion[], sourceId: string) {
   let latest: string | null = null;
