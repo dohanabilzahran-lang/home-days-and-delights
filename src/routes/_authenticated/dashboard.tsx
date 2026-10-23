@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Wallet, Sparkles, Brush, Baby, ChefHat } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { daysUntilDue, todayISO, useRows } from "@/lib/data";
-import { formatMoney } from "./budget";
+import { formatMoney } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Today — Nest" }, { name: "description", content: "Your day at a glance." }] }),

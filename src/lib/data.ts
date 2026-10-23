@@ -66,3 +66,7 @@ export function daysUntilDue(lastDone: string | null, everyDays: number, today =
   const diff = (Date.parse(today) - Date.parse(lastDone)) / 86400000;
   return Math.round(everyDays - diff);
 }
+
+export function formatMoney(n: number, lang: "en" | "ar") {
+  return new Intl.NumberFormat(lang === "ar" ? "ar-EG" : "en-US", { maximumFractionDigits: 2 }).format(n);
+}
