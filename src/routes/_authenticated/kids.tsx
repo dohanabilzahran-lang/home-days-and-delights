@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { useLang } from "@/lib/i18n";
-import { todayISO, useRows, useTableMutations } from "@/lib/data";
-import { PageHeader, Empty } from "@/components/PageHeader";
+import { todayISO, useRows, useTableMutations, useToggleDone } from "@/lib/data";
+import { PageHeader, ListState } from "@/components/PageHeader";
 import { CheckRow } from "@/components/CheckRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,10 @@ export const Route = createFileRoute("/_authenticated/kids")({
 
 function Kids() {
   const { t } = useLang();
-  const { data: rows = [] } = useRows("kids_tasks");
-  const { add, update, remove } = useTableMutations("kids_tasks");
+  const query = useRows("kids_tasks");
+  const rows = query.data ?? [];
+  const { add, remove } = useTableMutations("kids_tasks");
+  const toggleDone = useToggleDone("kids_tasks");
   const today = todayISO();
   const [child, setChild] = useState("");
   const [title, setTitle] = useState("");
@@ -41,7 +43,7 @@ function Kids() {
         <Input type="time" aria-label={t("time")} value={time} onChange={(e) => setTime(e.target.value)} />
         <Button type="submit" className="rounded-full">{t("add")}</Button>
       </form>
-      {children.length === 0 ? <Empty text={t("empty")} /> : (
+      <ListState query={query} isEmpty={children.length === 0}>
         <div className="grid gap-6 md:grid-cols-2">
           {children.map((c) => (
             <section key={c}>
@@ -50,14 +52,14 @@ function Kids() {
                 {rows.filter((r) => r.child_name === c).map((r) => (
                   <CheckRow key={r.id} title={r.title} meta={r.at_time?.slice(0, 5)}
                     done={r.last_done === today}
-                    onToggle={() => update.mutate({ id: r.id, values: { last_done: r.last_done === today ? null : today } })}
+                    onToggle={() => toggleDone(r, today)}
                     onDelete={() => remove.mutate(r.id)} />
                 ))}
               </ul>
             </section>
           ))}
         </div>
-      )}
+      </ListState>
     </>
   );
 }

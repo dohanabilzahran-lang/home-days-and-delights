@@ -3,7 +3,8 @@ import { useState, type FormEvent } from "react";
 import { Trash2 } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { formatMoney, todayISO, useRows, useTableMutations } from "@/lib/data";
-import { PageHeader, Empty } from "@/components/PageHeader";
+import { PageHeader, ListState } from "@/components/PageHeader";
+import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -14,7 +15,8 @@ export const Route = createFileRoute("/_authenticated/budget")({
 
 function Budget() {
   const { t, lang } = useLang();
-  const { data: rows = [] } = useRows("transactions");
+  const query = useRows("transactions");
+  const rows = query.data ?? [];
   const { add, remove } = useTableMutations("transactions");
   const cats = t("cats").split(",");
   const [title, setTitle] = useState("");
@@ -30,7 +32,7 @@ function Budget() {
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    if (!title || !amount) return;
+    if (!title || !(Number(amount) > 0)) return;
     add.mutate({ title, amount: Number(amount), kind, category, occurred_on: date });
     setTitle("");
     setAmount("");
@@ -55,7 +57,7 @@ function Budget() {
           ))}
         </div>
         <Input className="sm:col-span-2" placeholder={t("title")} value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Input type="number" step="0.01" placeholder={t("amount")} value={amount} onChange={(e) => setAmount(e.target.value)} />
+        <Input type="number" step="0.01" min="0.01" placeholder={t("amount")} value={amount} onChange={(e) => setAmount(e.target.value)} />
         <select className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
           {cats.map((c) => <option key={c}>{c}</option>)}
         </select>
@@ -63,7 +65,7 @@ function Budget() {
         <Button type="submit" className="rounded-full">{t("add")}</Button>
       </form>
 
-      {rows.length === 0 ? <Empty text={t("empty")} /> : (
+      <ListState query={query} isEmpty={rows.length === 0}>
         <ul className="card-soft divide-y divide-border">
           {rows.map((r) => (
             <li key={r.id} className="flex items-center gap-3 px-5 py-3">
@@ -74,13 +76,15 @@ function Budget() {
               <div className={r.kind === "income" ? "font-medium text-success" : "font-medium"}>
                 {r.kind === "income" ? "+" : "−"}{formatMoney(Number(r.amount), lang)}
               </div>
-              <button aria-label={t("delete")} onClick={() => remove.mutate(r.id)} className="text-muted-foreground hover:text-destructive">
-                <Trash2 className="size-4" />
-              </button>
+              <ConfirmDelete name={r.title} onConfirm={() => remove.mutate(r.id)}>
+                <button type="button" aria-label={t("deleteLabel", { name: r.title })} className="text-muted-foreground hover:text-destructive">
+                  <Trash2 className="size-4" />
+                </button>
+              </ConfirmDelete>
             </li>
           ))}
         </ul>
-      )}
+      </ListState>
     </>
   );
 }

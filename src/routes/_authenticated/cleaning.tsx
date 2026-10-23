@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { useLang } from "@/lib/i18n";
-import { daysUntilDue, todayISO, useRows, useTableMutations } from "@/lib/data";
-import { PageHeader, Empty } from "@/components/PageHeader";
+import { daysUntilDue, todayISO, useRows, useTableMutations, useToggleDone } from "@/lib/data";
+import { PageHeader, ListState } from "@/components/PageHeader";
 import { CheckRow } from "@/components/CheckRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,10 @@ export const Route = createFileRoute("/_authenticated/cleaning")({
 
 function Cleaning() {
   const { t } = useLang();
-  const { data: rows = [] } = useRows("cleaning_tasks");
-  const { add, update, remove } = useTableMutations("cleaning_tasks");
+  const query = useRows("cleaning_tasks");
+  const rows = query.data ?? [];
+  const { add, remove } = useTableMutations("cleaning_tasks");
+  const toggleDone = useToggleDone("cleaning_tasks");
   const today = todayISO();
   const [title, setTitle] = useState("");
   const [room, setRoom] = useState("");
@@ -40,7 +42,7 @@ function Cleaning() {
         <Input type="number" min={1} aria-label={t("everyDays")} placeholder={t("everyDays")} value={every} onChange={(e) => setEvery(e.target.value)} />
         <Button type="submit" className="rounded-full">{t("add")}</Button>
       </form>
-      {sorted.length === 0 ? <Empty text={t("empty")} /> : (
+      <ListState query={query} isEmpty={sorted.length === 0}>
         <ul className="card-soft divide-y divide-border">
           {sorted.map((r) => {
             const d = daysUntilDue(r.last_done, r.every_days, today);
@@ -52,12 +54,12 @@ function Cleaning() {
                 right={!doneToday && (
                   <span className={`rounded-full px-2.5 py-0.5 text-xs ${d <= 0 ? "bg-destructive/15 text-destructive" : "bg-secondary"}`}>{label}</span>
                 )}
-                onToggle={() => update.mutate({ id: r.id, values: { last_done: doneToday ? null : today } })}
+                onToggle={() => toggleDone(r, today)}
                 onDelete={() => remove.mutate(r.id)} />
             );
           })}
         </ul>
-      )}
+      </ListState>
     </>
   );
 }

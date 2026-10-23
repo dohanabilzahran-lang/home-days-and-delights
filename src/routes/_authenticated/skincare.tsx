@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useLang } from "@/lib/i18n";
-import { todayISO, useRows, useTableMutations } from "@/lib/data";
-import { PageHeader, Empty } from "@/components/PageHeader";
+import { todayISO, useRows, useTableMutations, useToggleDone } from "@/lib/data";
+import { PageHeader, ListState } from "@/components/PageHeader";
 import { CheckRow } from "@/components/CheckRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,10 @@ export const Route = createFileRoute("/_authenticated/skincare")({
 
 function Skincare() {
   const { t } = useLang();
-  const { data: rows = [] } = useRows("skincare_steps");
-  const { add, update, remove } = useTableMutations("skincare_steps");
+  const query = useRows("skincare_steps");
+  const rows = query.data ?? [];
+  const { add, remove } = useTableMutations("skincare_steps");
+  const toggleDone = useToggleDone("skincare_steps");
   const today = todayISO();
 
   return (
@@ -31,16 +33,16 @@ function Skincare() {
                 {period === "morning" ? <Sun className="size-5" /> : <Moon className="size-5" />} {t(period)}
               </h2>
               <AddStep onAdd={(title, product) => add.mutate({ title, product, period, position: list.length })} />
-              {list.length === 0 ? <Empty text={t("empty")} /> : (
+              <ListState query={query} isEmpty={list.length === 0}>
                 <ul className="card-soft divide-y divide-border">
                   {list.map((r) => (
                     <CheckRow key={r.id} title={r.title} meta={r.product}
                       done={r.last_done === today}
-                      onToggle={() => update.mutate({ id: r.id, values: { last_done: r.last_done === today ? null : today } })}
+                      onToggle={() => toggleDone(r, today)}
                       onDelete={() => remove.mutate(r.id)} />
                   ))}
                 </ul>
-              )}
+              </ListState>
             </section>
           );
         })}

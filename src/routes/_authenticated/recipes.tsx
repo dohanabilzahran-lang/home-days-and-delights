@@ -3,7 +3,8 @@ import { useState, type FormEvent } from "react";
 import { Clock, Trash2 } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { useRows, useTableMutations } from "@/lib/data";
-import { PageHeader, Empty } from "@/components/PageHeader";
+import { PageHeader, ListState } from "@/components/PageHeader";
+import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +17,8 @@ export const Route = createFileRoute("/_authenticated/recipes")({
 
 function Recipes() {
   const { t } = useLang();
-  const { data: rows = [] } = useRows("recipes");
+  const query = useRows("recipes");
+  const rows = query.data ?? [];
   const { add, remove } = useTableMutations("recipes");
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -53,7 +55,7 @@ function Recipes() {
         </Dialog>
       </PageHeader>
 
-      {rows.length === 0 ? <Empty text={t("empty")} /> : (
+      <ListState query={query} isEmpty={rows.length === 0}>
         <div className="grid gap-4 sm:grid-cols-2">
           {rows.map((r) => (
             <button key={r.id} onClick={() => setOpenId(r.id)} className="card-soft p-6 text-start transition-transform hover:-translate-y-0.5">
@@ -65,7 +67,7 @@ function Recipes() {
             </button>
           ))}
         </div>
-      )}
+      </ListState>
 
       <Dialog open={!!current} onOpenChange={(o) => !o && setOpenId(null)}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
@@ -78,9 +80,11 @@ function Recipes() {
               </ul>
               <h4 className="font-medium">{t("steps")}</h4>
               <p className="whitespace-pre-wrap text-sm">{current.steps}</p>
-              <Button variant="ghost" className="justify-start text-destructive" onClick={() => { remove.mutate(current.id); setOpenId(null); }}>
-                <Trash2 /> {t("delete")}
-              </Button>
+              <ConfirmDelete name={current.title} onConfirm={() => { remove.mutate(current.id); setOpenId(null); }}>
+                <Button variant="ghost" className="justify-start text-destructive">
+                  <Trash2 /> {t("delete")}
+                </Button>
+              </ConfirmDelete>
             </>
           )}
         </DialogContent>
