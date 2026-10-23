@@ -40,14 +40,14 @@ export function useTableMutations<T extends TableName>(table: T) {
   });
   const update = useMutation({
     mutationFn: async ({ id, values }: { id: string; values: Update<T> }) => {
-      const { error } = await supabase.from(table).update(values as never).eq("id", id);
+      const { error } = await supabase.from(table).update(values as never).eq("id" as never, id as never);
       if (error) throw error;
     },
     onSuccess: done,
   });
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from(table).delete().eq("id", id);
+      const { error } = await supabase.from(table).delete().eq("id" as never, id as never);
       if (error) throw error;
     },
     onSuccess: done,

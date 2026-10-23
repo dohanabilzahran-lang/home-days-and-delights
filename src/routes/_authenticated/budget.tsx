@@ -20,7 +20,7 @@ function Budget() {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [kind, setKind] = useState<"expense" | "income">("expense");
-  const [category, setCategory] = useState(cats[0]);
+  const [category, setCategory] = useState<string>(cats[0] ?? "Other");
   const [date, setDate] = useState(todayISO());
 
   const month = todayISO().slice(0, 7);
