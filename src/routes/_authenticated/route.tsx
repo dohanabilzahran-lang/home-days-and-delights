@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Home, Wallet, Sparkles, Brush, Baby, ChefHat, LogOut, MoreHorizontal, Briefcase, UtensilsCrossed, ShoppingBasket, CalendarDays } from "lucide-react";
+import { Home, Wallet, Sparkles, Brush, Baby, ChefHat, LogOut, MoreHorizontal, Briefcase, UtensilsCrossed, ShoppingBasket, CalendarDays, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { LangToggle, useLang, type Key } from "@/lib/i18n";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated")({
   component: AppShell,
 });
 
-type To = "/dashboard" | "/budget" | "/skincare" | "/cleaning" | "/kids" | "/recipes" | "/work" | "/meals" | "/shopping" | "/calendar";
+type To = "/dashboard" | "/budget" | "/skincare" | "/cleaning" | "/kids" | "/recipes" | "/work" | "/meals" | "/shopping" | "/calendar" | "/settings";
 type NavItem = { to: To; key: Key; icon: typeof Home; primary?: boolean };
 
 /**
@@ -42,6 +42,7 @@ const groups: { label?: Key; items: NavItem[] }[] = [
   ] },
   { label: "navMoney", items: [{ to: "/budget", key: "budget", icon: Wallet }] },
   { label: "navWork", items: [{ to: "/work", key: "work", icon: Briefcase }] },
+  { items: [{ to: "/settings", key: "settings", icon: Settings }] },
 ];
 
 const allItems = groups.flatMap((g) => g.items);

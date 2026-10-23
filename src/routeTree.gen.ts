@@ -18,11 +18,14 @@ import { Route as AuthenticatedCleaningRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMealsRouteImport } from './routes/_authenticated/meals'
 import { Route as AuthenticatedRecipesRouteImport } from './routes/_authenticated/recipes'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedShoppingRouteImport } from './routes/_authenticated/shopping'
 import { Route as AuthenticatedSkincareRouteImport } from './routes/_authenticated/skincare'
 import { Route as AuthenticatedWorkRouteImport } from './routes/_authenticated/work'
+import { Route as ApiCronRouteImport } from './routes/api/cron'
 import { Route as AuthenticatedKidsIndexRouteImport } from './routes/_authenticated/kids/index'
 import { Route as AuthenticatedKidsChildIdRouteImport } from './routes/_authenticated/kids/$childId'
+import { Route as ApiGoogleCallbackRouteImport } from './routes/api/google/callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -68,6 +71,11 @@ const AuthenticatedRecipesRoute = AuthenticatedRecipesRouteImport.update({
   path: '/recipes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedShoppingRoute = AuthenticatedShoppingRouteImport.update({
   id: '/shopping',
   path: '/shopping',
@@ -83,6 +91,11 @@ const AuthenticatedWorkRoute = AuthenticatedWorkRouteImport.update({
   path: '/work',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiCronRoute = ApiCronRouteImport.update({
+  id: '/api/cron',
+  path: '/api/cron',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedKidsIndexRoute = AuthenticatedKidsIndexRouteImport.update({
   id: '/kids/',
   path: '/kids/',
@@ -94,6 +107,11 @@ const AuthenticatedKidsChildIdRoute =
     path: '/kids/$childId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiGoogleCallbackRoute = ApiGoogleCallbackRouteImport.update({
+  id: '/api/google/callback',
+  path: '/api/google/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -104,10 +122,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/meals': typeof AuthenticatedMealsRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/shopping': typeof AuthenticatedShoppingRoute
   '/skincare': typeof AuthenticatedSkincareRoute
   '/work': typeof AuthenticatedWorkRoute
+  '/api/cron': typeof ApiCronRoute
   '/kids/$childId': typeof AuthenticatedKidsChildIdRoute
+  '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/kids/': typeof AuthenticatedKidsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -119,10 +140,13 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/meals': typeof AuthenticatedMealsRoute
   '/recipes': typeof AuthenticatedRecipesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/shopping': typeof AuthenticatedShoppingRoute
   '/skincare': typeof AuthenticatedSkincareRoute
   '/work': typeof AuthenticatedWorkRoute
+  '/api/cron': typeof ApiCronRoute
   '/kids/$childId': typeof AuthenticatedKidsChildIdRoute
+  '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/kids': typeof AuthenticatedKidsIndexRoute
 }
 export interface FileRoutesById {
@@ -136,10 +160,13 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/meals': typeof AuthenticatedMealsRoute
   '/_authenticated/recipes': typeof AuthenticatedRecipesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/shopping': typeof AuthenticatedShoppingRoute
   '/_authenticated/skincare': typeof AuthenticatedSkincareRoute
   '/_authenticated/work': typeof AuthenticatedWorkRoute
+  '/api/cron': typeof ApiCronRoute
   '/_authenticated/kids/$childId': typeof AuthenticatedKidsChildIdRoute
+  '/api/google/callback': typeof ApiGoogleCallbackRoute
   '/_authenticated/kids/': typeof AuthenticatedKidsIndexRoute
 }
 export interface FileRouteTypes {
@@ -153,10 +180,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/meals'
     | '/recipes'
+    | '/settings'
     | '/shopping'
     | '/skincare'
     | '/work'
+    | '/api/cron'
     | '/kids/$childId'
+    | '/api/google/callback'
     | '/kids/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -168,10 +198,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/meals'
     | '/recipes'
+    | '/settings'
     | '/shopping'
     | '/skincare'
     | '/work'
+    | '/api/cron'
     | '/kids/$childId'
+    | '/api/google/callback'
     | '/kids'
   id:
     | '__root__'
@@ -184,10 +217,13 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/meals'
     | '/_authenticated/recipes'
+    | '/_authenticated/settings'
     | '/_authenticated/shopping'
     | '/_authenticated/skincare'
     | '/_authenticated/work'
+    | '/api/cron'
     | '/_authenticated/kids/$childId'
+    | '/api/google/callback'
     | '/_authenticated/kids/'
   fileRoutesById: FileRoutesById
 }
@@ -195,6 +231,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiCronRoute: typeof ApiCronRoute
+  ApiGoogleCallbackRoute: typeof ApiGoogleCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -262,6 +300,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRecipesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/shopping': {
       id: '/_authenticated/shopping'
       path: '/shopping'
@@ -283,6 +328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWorkRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/cron': {
+      id: '/api/cron'
+      path: '/api/cron'
+      fullPath: '/api/cron'
+      preLoaderRoute: typeof ApiCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/kids/': {
       id: '/_authenticated/kids/'
       path: '/kids'
@@ -297,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedKidsChildIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/google/callback': {
+      id: '/api/google/callback'
+      path: '/api/google/callback'
+      fullPath: '/api/google/callback'
+      preLoaderRoute: typeof ApiGoogleCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -307,6 +366,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMealsRoute: typeof AuthenticatedMealsRoute
   AuthenticatedRecipesRoute: typeof AuthenticatedRecipesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedShoppingRoute: typeof AuthenticatedShoppingRoute
   AuthenticatedSkincareRoute: typeof AuthenticatedSkincareRoute
   AuthenticatedWorkRoute: typeof AuthenticatedWorkRoute
@@ -321,6 +381,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMealsRoute: AuthenticatedMealsRoute,
   AuthenticatedRecipesRoute: AuthenticatedRecipesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedShoppingRoute: AuthenticatedShoppingRoute,
   AuthenticatedSkincareRoute: AuthenticatedSkincareRoute,
   AuthenticatedWorkRoute: AuthenticatedWorkRoute,
@@ -335,6 +396,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiCronRoute: ApiCronRoute,
+  ApiGoogleCallbackRoute: ApiGoogleCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
