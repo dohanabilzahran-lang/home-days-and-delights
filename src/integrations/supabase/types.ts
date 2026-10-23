@@ -14,7 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cleaning_tasks: {
+        Row: {
+          created_at: string
+          every_days: number
+          id: string
+          last_done: string | null
+          room: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          every_days?: number
+          id?: string
+          last_done?: string | null
+          room?: string | null
+          title: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          every_days?: number
+          id?: string
+          last_done?: string | null
+          room?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      kids_tasks: {
+        Row: {
+          at_time: string | null
+          child_name: string
+          created_at: string
+          id: string
+          last_done: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          at_time?: string | null
+          child_name: string
+          created_at?: string
+          id?: string
+          last_done?: string | null
+          title: string
+          user_id?: string
+        }
+        Update: {
+          at_time?: string | null
+          child_name?: string
+          created_at?: string
+          id?: string
+          last_done?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          created_at: string
+          id: string
+          ingredients: string
+          minutes: number | null
+          steps: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ingredients?: string
+          minutes?: number | null
+          steps?: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ingredients?: string
+          minutes?: number | null
+          steps?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skincare_steps: {
+        Row: {
+          created_at: string
+          id: string
+          last_done: string | null
+          period: string
+          position: number
+          product: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_done?: string | null
+          period?: string
+          position?: number
+          product?: string | null
+          title: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_done?: string | null
+          period?: string
+          position?: number
+          product?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          kind: string
+          occurred_on: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          occurred_on?: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          occurred_on?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
