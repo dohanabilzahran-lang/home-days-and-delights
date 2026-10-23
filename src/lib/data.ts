@@ -76,6 +76,27 @@ export function useTableMutations<T extends TableName>(table: T) {
   return { add, update, remove };
 }
 
+/** The signed-in user's profile (monthly income, time zone). Created on first save. */
+export function useProfile() {
+  const qc = useQueryClient();
+  const { t } = useLang();
+  const q = useRows("profiles");
+  const save = useMutation({
+    mutationFn: async (values: { monthly_income?: number; timezone?: string }) => {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) throw new Error("Not signed in");
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({ user_id: auth.user.id, ...values, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["profiles"] }),
+    onError: (e) => toast.error(t("saveFailed"), { description: e instanceof Error ? e.message : undefined }),
+  });
+  const profile = q.data?.[0];
+  return { profile, income: Number(profile?.monthly_income ?? 0), isPending: q.isPending, save };
+}
+
 export type RoutineSource = "cleaning" | "kids" | "skincare";
 const routineTable = { cleaning: "cleaning_tasks", kids: "kids_tasks", skincare: "skincare_steps" } as const;
 
